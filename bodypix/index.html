@@ -1,29 +1,78 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
+  <head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+    <!-- Load BodyPix -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+    <!-- Merge Images -->
+    <!---<link rel="stylesheet" href="styles.css">--->
+    <!--<script src="https://unpkg.com/merge-images"></script> --->
+ </head>
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+  <body>
+    <div class="pic-container">
+    <img id='image' src='images/yo.jpg' crossorigin='anonymous'/>
+    </div>
+    <div class="pic-container"><canvas id="canvas"></canvas></div>
+    <a id="download" download="image.png"><button type="button" onClick="download()">Download</button></a>
+    
+  </body>
+  <!-- Place your code in the script tag below. You can also use an external .js file -->
+  <script>
+    //var canvas =document.createElement("canvas");
 
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.6/dist/tf-tflite.min.js"></script>
+    const canvas = document.getElementById('canvas');
+    const img = document.getElementById('image');
+
+    async function loadAndPredict() {
+      const net = await bodyPix.load(/** optional arguments, see below **/);
+      /**
+       * One of (see documentation below):
+       *   - net.segmentPerson
+       *   - net.segmentPersonParts
+       *   - net.segmentMultiPerson
+       *   - net.segmentMultiPersonParts
+       * See documentation below for details on each method.
+       */
+      const segmentation = await net.segmentPerson(img);
+      const maskBackground = true;
+      const foregroundColor = {r: 0, g: 0, b: 0, a: 0};
+      const backgroundColor = {r: 0, g: 255, b: 0, a: 255};
+      const backgroundDarkeningMask = bodyPix.toMask(
+    segmentation, foregroundColor, backgroundColor);
+
+      console.log(segmentation);
+      //Old version
+      //const coloredPartImage = bodyPix.toMask(segmentation);
+const opacity = 1;
+const flipHorizontal = false;
+const maskBlurAmount = 2;
+//const canvas = document.getElementById('canvas');
+// Draw the mask image on top of the original image onto a canvas.
+// The colored part image will be drawn semi-transparent, with an opacity of
+// 0.7, allowing for the original image to be visible under.
+bodyPix.drawMask(
+    canvas, img, backgroundDarkeningMask, opacity, maskBlurAmount,
+    flipHorizontal);
+    /*canvas.toBlob(function(blob) {
+    saveAs(blob, "prettyimage.png");
+});*/
+    
+    }
 
 
 
+    loadAndPredict();
+   
+  </script>
+  <script>
+function download(){
+        var download = document.getElementById("download");
+        var image = document.getElementById("canvas").toDataURL("image/png")
+                    .replace("image/png", "image/octet-stream");
+        download.setAttribute("href", image);
 
-</head>
-<body>
-<div class="pic-container">
-    <img src="im.png"
-       crossOrigin="anonymous"/>
-    <a class="credit" href="" target="_blank">Credit</a>
-  </div>
-  
-  <div class="result-container">
-    <div class="trigger">Loading...</div> 
-    <canvas width="224px" height="224px" class="hide"></canvas>
-  </div>
-  <script src="./main.js"></script>
-</body>
+    }
+
+  </script>
 </html>
