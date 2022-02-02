@@ -6,6 +6,11 @@ async function start() {
   
     // Setup the trigger button.
     setupTrigger(tfliteModel);
+    
+    
+    // hola!!!!!!!!!!!!!!!!
+
+
   }
   
   async function cartoonize(tfliteModel) {
