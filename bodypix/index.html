@@ -13,6 +13,7 @@
     <div class="pic-container">
     <img id='image' src='images/tomo.jpg' crossorigin='anonymous'/>
     </div>
+    <div class="pic-container"><canvas id="mask"></canvas></div>
     <div class="pic-container"><canvas id="canvas"></canvas></div>
     <a id="download" download="image.png"><button type="button" onClick="download()">Download</button></a>
     
@@ -22,6 +23,7 @@
     //var canvas =document.createElement("canvas");
 
     const canvas = document.getElementById('canvas');
+    const mask = document.getElementById('mask');
     const img = document.getElementById('image');
 
     async function loadAndPredict() {
@@ -37,9 +39,16 @@
       const segmentation = await net.segmentPerson(img);
       const maskBackground = true;
       const foregroundColor = {r: 0, g: 0, b: 0, a: 0};
-      const backgroundColor = {r: 0, g: 255, b: 0, a: 255};
+      const backgroundColor = {r: 255, g: 255, b: 255, a: 255};
+
+      const foregroundColor2 = {r:255, g: 255, b: 255, a: 255};
+      const backgroundColor2 = {r: 0, g: 0, b: 0, a: 255};
+
       const backgroundDarkeningMask = bodyPix.toMask(
     segmentation, foregroundColor, backgroundColor);
+
+    const backgroundDarkeningMask2 = bodyPix.toMask(
+    segmentation, foregroundColor2, backgroundColor2);
 
       console.log(segmentation);
       //Old version
@@ -54,6 +63,11 @@ const maskBlurAmount = 2;
 bodyPix.drawMask(
     canvas, img, backgroundDarkeningMask, opacity, maskBlurAmount,
     flipHorizontal);
+
+    bodyPix.drawMask(
+      mask, img, backgroundDarkeningMask2, opacity, maskBlurAmount,
+    flipHorizontal);
+
     /*canvas.toBlob(function(blob) {
     saveAs(blob, "prettyimage.png");
 });*/

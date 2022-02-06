@@ -1,0 +1,31 @@
+<!--ESTE ES EL BUENO-->
+<html>
+<head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+    <!-- Load BodyPix -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+    <!-- Load tflite -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.6/dist/tf-tflite.min.js"></script>
+
+
+</head>
+<body>
+    <div>
+        <img id='image' src='images/yo.jpeg' crossorigin='anonymous'/>
+    </div>
+    <div><canvas id="mask"></canvas></div>
+    <div><canvas id="nobg"></canvas></div>
+
+    <div class="result-container">
+        <canvas id="cartoon" width="224px" height="224px" class="hide"></canvas>
+    </div>
+
+
+</body>
+<script  type="text/javascript"
+ src="index.js"    ></script>
+
+
+</html>
+
