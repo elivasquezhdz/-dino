@@ -16,7 +16,7 @@ async function execute() {
      */
     const segmentation = await net.segmentPerson(img);
     const foregroundColor = {r: 0, g: 0, b: 0, a: 0};
-    const backgroundColor = {r: 0, g: 255, b: 0, a: 255};
+    const backgroundColor = {r: 255, g: 255, b:255, a: 255};
 
     const foregroundColor2 = {r:255, g: 255, b: 255, a: 255};
     const backgroundColor2 = {r: 0, g: 0, b: 0, a: 255};
@@ -91,4 +91,21 @@ async function cartoonize(tfliteModel) {
 }
 start();
 
-
+let src = cv.imread('mask');
+let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+let contours = new cv.MatVector();
+let hierarchy = new cv.Mat();
+cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+let cnt = contours.get(0);
+// You can try more different parameters
+let rect = cv.boundingRect(cnt);
+let contoursColor = new cv.Scalar(255, 255, 255);
+let rectangleColor = new cv.Scalar(255, 0, 0);
+cv.drawContours(dst, contours, 0, contoursColor, 1, 8, hierarchy, 100);
+let point1 = new cv.Point(rect.x, rect.y);
+let point2 = new cv.Point(rect.x + rect.width, rect.y + rect.height);
+cv.rectangle(dst, point1, point2, rectangleColor, 2, cv.LINE_AA, 0);
+cv.imshow('rect', dst);
+src.delete(); dst.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
