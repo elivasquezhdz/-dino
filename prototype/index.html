@@ -18,7 +18,8 @@
     <div><canvas id="mask"></canvas></div>
     <div><canvas id="nobg"></canvas></div>
     <div><canvas id="rect"></canvas></div>
-
+    <div><canvas id="rect1"></canvas></div>
+    <div><canvas id="rect2"></canvas></div>
     <div class="result-container">
         <canvas id="cartoon" width="224px" height="224px" class="hide"></canvas>
     </div>
@@ -78,16 +79,9 @@ async function execute() {
     cv.imshow('rect',dst);
     src.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
 
-    await start();
+    await start_cartoonize();
     // await cartoonize(tfliteModel);
-    let to_delete = document.getElementById("image");
-    to_delete.parentElement.removeChild(to_delete);
-
-    to_delete = document.getElementById("nobg");
-    to_delete.parentElement.removeChild(to_delete);    
-
-    to_delete = document.getElementById("mask");
-    to_delete.parentElement.removeChild(to_delete);
+    //await delete_images();
 
     let cartoon = cv.imread("cartoon")
     let cartoon_resized = new cv.Mat();
@@ -95,18 +89,48 @@ async function execute() {
 
     let dsize = new cv.Size(w, h);
     cv.resize(cartoon, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);
-    cv.imshow('cartoon', cartoon_resized);
-    dst.delete();     cartoon.delete();   cartoon_resized.delete();
+    //dsize = new cv.Size(w/10, h/10);
+    //cv.resize(cartoon_resized, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);
+    /*dsize = new cv.Size(150, 150);
+    cv.resize(cartoon_resized, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);*/
 
+    cv.imshow('cartoon', cartoon_resized);
+
+    dst = new cv.Mat();
+    dsize = new cv.Size(cartoon_resized.cols, cartoon_resized.rows);
+
+    let center = new cv.Point(cartoon_resized.cols / 2, cartoon_resized.rows / 2);
+    let M = cv.getRotationMatrix2D(center, -3, 1);
+    cv.warpAffine(cartoon_resized, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    cv.imshow('rect1', dst);
+    
+    M = cv.getRotationMatrix2D(center, 3, 1);
+    cv.warpAffine(cartoon_resized, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    cv.imshow('rect2', dst);
+
+    M.delete();
+    dst.delete();     cartoon.delete();    
+    cartoon_resized.delete();
     to_delete = document.getElementById("rect");
     to_delete.parentElement.removeChild(to_delete);   
 
   }
 
   
-execute();
 
-async function start() {
+
+async function delete_images(){
+let to_delete = document.getElementById("image");
+    to_delete.parentElement.removeChild(to_delete);
+
+    to_delete = document.getElementById("nobg");
+    to_delete.parentElement.removeChild(to_delete);    
+
+    to_delete = document.getElementById("mask");
+    to_delete.parentElement.removeChild(to_delete);
+}
+
+async function start_cartoonize() {
   // Load the model.
   const tfliteModel = await tflite.loadTFLiteModel(
     "https://storage.googleapis.com/tfweb/models/cartoongan_fp16.tflite",
@@ -155,12 +179,8 @@ async function cartoonize(tfliteModel) {
 
 
 }
-start();
 
-
-
-
-
+execute();
 
 }
     </script>
