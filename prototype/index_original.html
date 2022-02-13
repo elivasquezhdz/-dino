@@ -13,7 +13,7 @@
 <body>
     <p id="status">OpenCV.js is loading...</p>
     <div>
-        <img id='image' src='images/yo.jpg' crossorigin='anonymous'/>
+        <img id='image' src='images/tomo.jpg' crossorigin='anonymous'/>
     </div>
     <div><canvas id="mask"></canvas></div>
     <div><canvas id="nobg"></canvas></div>
@@ -96,6 +96,10 @@ async function execute() {
 
     cv.imshow('cartoon', cartoon_resized);
 
+
+
+
+
     dst = new cv.Mat();
     dsize = new cv.Size(cartoon_resized.cols, cartoon_resized.rows);
 
@@ -111,8 +115,7 @@ async function execute() {
     M.delete();
     dst.delete();     cartoon.delete();    
     cartoon_resized.delete();
-    to_delete = document.getElementById("rect");
-    to_delete.parentElement.removeChild(to_delete);   
+    //delete_images();
 
   }
 
@@ -128,6 +131,10 @@ let to_delete = document.getElementById("image");
 
     to_delete = document.getElementById("mask");
     to_delete.parentElement.removeChild(to_delete);
+
+    to_delete = document.getElementById("rect");
+    to_delete.parentElement.removeChild(to_delete);  
+
 }
 
 async function start_cartoonize() {
