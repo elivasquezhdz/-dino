@@ -3,6 +3,39 @@
 // found in the LICENSE file.
 // extract from chromium source code by @liuwayong
 (function () {
+
+    var e =document.getElementById("offline-resources")
+
+
+    var c = document.getElementById("offline-resources-1x-canvas");
+    var ctx = c.getContext("2d");
+    var img = document.getElementById("offline-resources-1x-img");
+    ctx.drawImage(img,0,0);
+  
+    var img_added = new Image();
+
+    img_added.setAttribute('id','offline-resources-1x');
+    img_b64 = c.toDataURL();
+    img_added.src = img_b64;
+    e.appendChild(img_added)
+
+    c = document.getElementById("offline-resources-2x-canvas");
+    ctx = c.getContext("2d");
+    img = document.getElementById("offline-resources-2x-img");
+    ctx.drawImage(img,0,0);
+
+
+    img_added = new Image();
+
+    img_added.setAttribute('id','offline-resources-2x');
+    img_b64 = c.toDataURL();
+    img_added.src = img_b64;
+    e.appendChild(img_added)
+
+
+
+
+
     'use strict';
     /**
      * T-Rex runner.
@@ -87,7 +120,7 @@
     var FPS = 60;
 
     /** @const */
-    var IS_HIDPI = window.devicePixelRatio > 1;
+    var IS_HIDPI = false; //window.devicePixelRatio > 1;
 
     /** @const */
     var IS_IOS = /iPad|iPhone|iPod/.test(window.navigator.platform);
