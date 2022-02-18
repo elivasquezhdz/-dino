@@ -1,0 +1,197 @@
+<!--ESTE ES EL BUENO-->
+<html>
+<head>
+    <!-- Load TensorFlow.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+    <!-- Load BodyPix -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+    <!-- Load tflite -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.6/dist/tf-tflite.min.js"></script>
+
+
+</head>
+<body>
+    <p id="status">OpenCV.js is loading...</p>
+    <div>
+        <img id='image' src='images/mileo.png' crossorigin='anonymous'/>
+    </div>
+    <div><canvas id="mask"></canvas></div>
+    <div><canvas id="nobg"></canvas></div>
+    <div><canvas id="rect"></canvas></div>
+    <div><canvas id="rect1"></canvas></div>
+    <div><canvas id="rect2"></canvas></div>
+    <div class="result-container">
+        <canvas id="cartoon" width="224px" height="224px" class="hide"></canvas>
+    </div>
+
+
+</body>
+<!--<script  type="text/javascript"
+ src="index.js"    ></script>-->
+ <script>
+    function onOpenCvReady() {
+        document.getElementById('status').innerHTML = 'OpenCV.js is ready.';
+        const nobg = document.getElementById('nobg');
+const mask = document.getElementById('mask');
+const img = document.getElementById('image');
+//const tfliteModel =  tflite.loadTFLiteModel("https://storage.googleapis.com/tfweb/models/cartoongan_fp16.tflite",)
+
+
+async function execute() {
+    const net = await bodyPix.load(/** optional arguments, see below **/);
+    /**
+     * One of (see documentation below):
+     *   - net.segmentPerson
+     *   - net.segmentPersonParts
+     *   - net.segmentMultiPerson
+     *   - net.segmentMultiPersonParts
+     * See documentation below for details on each method.
+     */
+    const segmentation = await net.segmentPerson(img);
+    const foregroundColor = {r: 0, g: 0, b: 0, a: 0};
+    const backgroundColor = {r: 255, g: 255, b:255, a: 255};
+
+    const foregroundColor2 = {r:255, g: 255, b: 255, a: 255};
+    const backgroundColor2 = {r: 0, g: 0, b: 0, a: 255};
+
+    const backgroundDarkeningMask = bodyPix.toMask(segmentation, foregroundColor, backgroundColor);
+
+    const backgroundDarkeningMask2 = bodyPix.toMask(segmentation, foregroundColor2, backgroundColor2);    
+    const opacity = 1;
+    const flipHorizontal = false;
+    const maskBlurAmount = 2;
+    bodyPix.drawMask(  nobg, img, backgroundDarkeningMask, opacity, maskBlurAmount,  flipHorizontal);  
+
+    bodyPix.drawMask(mask, img, backgroundDarkeningMask2, opacity, maskBlurAmount,  flipHorizontal);
+
+    let nobgimg =  cv.imread('nobg');
+    let src = cv.imread('mask');
+    let dst = cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
+    cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+    cv.threshold(src, src, 177, 200, cv.THRESH_BINARY);
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+    cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let cnt = contours.get(0);
+    // You can try more different parameters
+    let rect = cv.boundingRect(cnt);
+    dst = nobgimg.roi(rect);
+    cv.imshow('rect',dst);
+    src.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
+
+    await start_cartoonize();
+    // await cartoonize(tfliteModel);
+    //await delete_images();
+
+    let cartoon = cv.imread("cartoon")
+    let cartoon_resized = new cv.Mat();
+    w = dst.cols; h = dst.rows;
+
+    let dsize = new cv.Size(w, h);
+    cv.resize(cartoon, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);
+    //dsize = new cv.Size(w/10, h/10);
+    //cv.resize(cartoon_resized, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);
+    /*dsize = new cv.Size(150, 150);
+    cv.resize(cartoon_resized, cartoon_resized, dsize, 0, 0, cv.INTER_AREA);*/
+
+    cv.imshow('cartoon', cartoon_resized);
+
+
+
+
+
+    dst = new cv.Mat();
+    dsize = new cv.Size(cartoon_resized.cols, cartoon_resized.rows);
+
+    let center = new cv.Point(cartoon_resized.cols / 2, cartoon_resized.rows / 2);
+    let M = cv.getRotationMatrix2D(center, -3, 1);
+    cv.warpAffine(cartoon_resized, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    cv.imshow('rect1', dst);
+    
+    M = cv.getRotationMatrix2D(center, 3, 1);
+    cv.warpAffine(cartoon_resized, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+    cv.imshow('rect2', dst);
+
+    M.delete();
+    dst.delete();     cartoon.delete();    
+    cartoon_resized.delete();
+    //delete_images();
+
+  }
+
+  
+
+
+async function delete_images(){
+let to_delete = document.getElementById("image");
+    to_delete.parentElement.removeChild(to_delete);
+
+    to_delete = document.getElementById("nobg");
+    to_delete.parentElement.removeChild(to_delete);    
+
+    to_delete = document.getElementById("mask");
+    to_delete.parentElement.removeChild(to_delete);
+
+    to_delete = document.getElementById("rect");
+    to_delete.parentElement.removeChild(to_delete);  
+
+}
+
+async function start_cartoonize() {
+  // Load the model.
+  const tfliteModel = await tflite.loadTFLiteModel(
+    "https://storage.googleapis.com/tfweb/models/cartoongan_fp16.tflite",
+  );
+  // Setup the trigger button.
+  cartoonize(tfliteModel);
+
+}
+
+async function cartoonize(tfliteModel) {
+  // Prepare the input tensors from the image.
+  const inputTensor = tf.image
+    // Resize.
+    .resizeBilinear(tf.browser.fromPixels(document.getElementById("rect")), [
+      224,
+      224
+    ])
+    // Normalize.
+    .expandDims()
+    .div(127.5)
+    .sub(1);
+  
+  // Run the inference and get the output tensors.
+  const outputTensor = tfliteModel.predict(inputTensor);
+  
+  // Process and draw the result on the canvas.
+  //
+  // De-normalize.
+  const data = outputTensor.add(1).mul(127.5);
+  // Convert from RGB to RGBA, and create and return ImageData.
+  const rgb = Array.from(data.dataSync());
+  const rgba = [];
+  for (let i = 0; i < rgb.length / 3; i++) {
+    for (let c = 0; c < 3; c++) {
+      rgba.push(rgb[i * 3 + c]);
+    }
+    rgba.push(255);
+  }
+  // Draw on canvas.
+  const imageData = new ImageData(Uint8ClampedArray.from(rgba), 224, 224);
+  const canvas = document.getElementById("cartoon");
+  const ctx = canvas.getContext("2d");
+  ctx.putImageData(imageData, 0, 0);
+  canvas.classList.remove("hide");
+
+
+
+}
+
+execute();
+
+}
+    </script>
+    <script async src="opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+
+</html>
+

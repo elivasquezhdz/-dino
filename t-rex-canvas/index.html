@@ -7,6 +7,11 @@
     <title >chrome easter egg: t-rex runner</title>
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"> 
+    <script>
+        function onOpenCvReady() {console.log("opencvReady!!")}
+    
+    </script>    
+    <script src="opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
     
 </head>
 
@@ -33,12 +38,6 @@
     </div>
 </body>
 <script>
-    window.onload = function() {
-    console.log("hai");
-    
-    }
-    </script>
-<script>
     document.onkeydown = function(evt) {
     evt = evt || window.event;
     if (evt.keyCode == 32) {
@@ -47,5 +46,8 @@
     }
 };
 </script>
+
+
+
 <script src="index.js"></script>    
 </html>
