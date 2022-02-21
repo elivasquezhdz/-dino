@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Load TensorFlow.js -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.2"></script>
+<!-- Load BodyPix -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0"></script>
+<!-- Load tflite -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-tflite@0.0.1-alpha.6/dist/tf-tflite.min.js"></script>
+
+<title>Hello OpenCV.js</title>
+</head>
+<body>
+<h2>Hello!!</h2>
+<p id="status">OpenCV.js is loading...</p>
+<p>Please wait for OpenCV to be ready then upload a picture to process</p>
+<div>
+  <div class="inputoutput">
+    <img id="image" alt="No Image" />
+    <div class="caption">imageSrc <input type="file" id="fileInput" name="file" /></div>
+  </div>
+  <img id="nearsprites" src="empty.bmp"/>
+  <div><canvas id="nobg"></canvas></div>
+  <div><canvas id="mask"></canvas></div>
+  <div><canvas id="mask1"></canvas></div>
+  <div><canvas id="mask2"></canvas></div>
+  <div><canvas id="rect"></canvas></div>
+  <div><canvas id="rect1"></canvas></div>
+  <div><canvas id="rect2"></canvas></div>
+  <div><canvas id="swapcolors"></canvas></div>
+</div>
+<script>  function onOpenCvReady() {  document.getElementById('status').innerHTML = 'OpenCV.js is ready.';  }</script>
+<script  src="opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+
+<script src="main.js" type="text/javascript"> </script>
+  
+    
+</body>
+</html>
