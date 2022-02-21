@@ -37,12 +37,14 @@ imgElement.onload = function() {
 
         await resize_imgs();
         await delete_images();
+
     }
 
     async function resize_imgs(){
-
+      
       let mask_mat = new cv.Mat(); let mask_mat1 = new cv.Mat(); let mask_mat2 = new cv.Mat();
       let frame = new cv.Mat(); let frame1 = new cv.Mat(); let frame2 = new cv.Mat(); let bg = new cv.Mat();
+      let rotate = new cv.Mat();
       let rgbaPlanes = new cv.MatVector();
       let mergedPlanes = new cv.MatVector();
 
@@ -74,11 +76,17 @@ imgElement.onload = function() {
       let MASKU = rgbaPlanes.get(0);      
      
 
-      
-
+      for (let i = 0; i <  MASKU.rows; i++) {
+        for (let j =0; j < 0 +MASKU.cols; j++) {
+            {
+                //MASKU.ucharPtr(i, j)[0] = MASKU.ucharPtr(i, j)[0]/255;
+                MASKU.ucharPtr(i, j)[0] = MASKU.ucharPtr(i, j)[0]/255;
+            }
+    
+        }
+    }
+    cv.imshow('mask',MASKU);
       cv.resize(frame, frame, dsize, 0, 0, cv.INTER_AREA);
-
-
 
       cv.split(frame, rgbaPlanes);
       let channel = rgbaPlanes.get(0);
@@ -87,14 +95,19 @@ imgElement.onload = function() {
       mergedPlanes.push_back(channel);
       channel = rgbaPlanes.get(2);
       mergedPlanes.push_back(channel);
-      mergedPlanes.push_back(MASKU);
+      //mergedPlanes.push_back(MASKU);
 
 
       cv.merge(mergedPlanes, frame);
       cv.imshow('rect',frame);
 
-
-
+      dsize = new cv.Size(frame.rows, frame.cols);
+      let center = new cv.Point(frame.cols / 2, frame.rows / 2);
+      let M = cv.getRotationMatrix2D(center, -90, 1);
+      cv.warpAffine(frame, rotate, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+      dsize = new cv.Size(59,25);
+      cv.resize(rotate, rotate, dsize, 0, 0, cv.INTER_AREA);
+      //
 
 
       // Split the src
@@ -105,15 +118,15 @@ imgElement.onload = function() {
       mergedPlanes.push_back(channel);
       mergedPlanes.push_back(channel);
       mergedPlanes.push_back(channel);
-      mergedPlanes.push_back(MASKU);
+      //mergedPlanes.push_back(MASKU);
       cv.merge(mergedPlanes, bg);
       cv.imshow('swapcolors', bg);
 
 
       
       dsize = new cv.Size(frame.cols, frame.rows);
-      let center = new cv.Point(frame.cols / 2, frame.rows / 2);
-      let M = cv.getRotationMatrix2D(center, -3, 1);
+      center = new cv.Point(frame.cols / 2, frame.rows / 2);
+      M = cv.getRotationMatrix2D(center, -3, 1);
       cv.warpAffine(frame, frame1, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
 
       /*dsize = new cv.Size(w, h);
@@ -142,15 +155,96 @@ imgElement.onload = function() {
       cv.imshow('rect2', frame2);
 
 
+      let sprites = cv.imread(document.getElementById("nearsprites"));
+      //ADD first image (left side)
+      for (let i = 0; i <  frame.rows; i++) {
+          for (let j =0; j < frame.cols; j++) {
+                sprites.ucharPtr(i+2, j+40)[0] = frame.ucharPtr(i, j)[0];
+                sprites.ucharPtr(i+2, j+40)[1] = frame.ucharPtr(i, j)[1];
+                sprites.ucharPtr(i+2, j+40)[2] = frame.ucharPtr(i, j)[2];      
+          }
+      }
+
+      //JUMPING SPRITE
+      for (let i = 0; i <  frame.rows; i++) {
+        for (let j =0; j < frame.cols; j++) {
+              sprites.ucharPtr(i+2, j+848)[0] = frame.ucharPtr(i, j)[0];
+              sprites.ucharPtr(i+2, j+848)[1] = frame.ucharPtr(i, j)[1];
+              sprites.ucharPtr(i+2, j+848)[2] = frame.ucharPtr(i, j)[2];      
+        }
+      }
+
+      //JUMPING SPRITE
+      for (let i = 0; i <  bg.rows; i++) {
+        for (let j =0; j < bg.cols; j++) {
+              sprites.ucharPtr(i+2, j+848+ 44 )[0] = bg.ucharPtr(i, j)[0];
+              sprites.ucharPtr(i+2, j+848+ 44 )[1] = bg.ucharPtr(i, j)[1];
+              sprites.ucharPtr(i+2, j+848+ 44 )[2] = bg.ucharPtr(i, j)[2];      
+        }
+      }
+
+
+      //running SPRITE1
+      for (let i = 0; i <  frame1.rows; i++) {
+        for (let j =0; j < frame1.cols; j++) {
+              sprites.ucharPtr(i+2, j+848+ 88 )[0] = frame1.ucharPtr(i, j)[0];
+              sprites.ucharPtr(i+2, j+848+ 88 )[1] = frame1.ucharPtr(i, j)[1];
+              sprites.ucharPtr(i+2, j+848+ 88 )[2] = frame1.ucharPtr(i, j)[2];      
+        }
+      }
+
+
+    //running SPRITE2
+      for (let i = 0; i <  frame2.rows; i++) {
+        for (let j =0; j < frame2.cols; j++) {
+              sprites.ucharPtr(i+2, j+848+ 132 )[0] = frame2.ucharPtr(i, j)[0];
+              sprites.ucharPtr(i+2, j+848+ 132 )[1] = frame2.ucharPtr(i, j)[1];
+              sprites.ucharPtr(i+2, j+848+ 132 )[2] = frame2.ucharPtr(i, j)[2];      
+        }
+      }
+    
+    //lost sprite
+    for (let i = 0; i <  bg.rows; i++) {
+      for (let j =0; j < bg.cols; j++) {
+            sprites.ucharPtr(i+2, j+848+ 176 )[0] = bg.ucharPtr(i, j)[0];
+            sprites.ucharPtr(i+2, j+848+ 176 )[1] = bg.ucharPtr(i, j)[1];
+            sprites.ucharPtr(i+2, j+848+ 176 )[2] = bg.ucharPtr(i, j)[2];      
+
+            sprites.ucharPtr(i+2, j+848+ 220 )[0] = bg.ucharPtr(i, j)[0];
+            sprites.ucharPtr(i+2, j+848+ 220 )[1] = bg.ucharPtr(i, j)[1];
+            sprites.ucharPtr(i+2, j+848+ 220 )[2] = bg.ucharPtr(i, j)[2];  
+      }
+    }
+
+
+    //rotate 
+    for (let i = 0; i <  rotate.rows; i++) {
+      for (let j =0; j < rotate.cols; j++) {
+            sprites.ucharPtr(i+21, j+848+ 264 )[0] = rotate.ucharPtr(i, j)[0];
+            sprites.ucharPtr(i+21, j+848+ 264 )[1] = rotate.ucharPtr(i, j)[1];
+            sprites.ucharPtr(i+21, j+848+ 264 )[2] = rotate.ucharPtr(i, j)[2];      
+
+            sprites.ucharPtr(i+21, j+848+ 264 +59)[0] = rotate.ucharPtr(i, j)[0];
+            sprites.ucharPtr(i+21, j+848+ 264 +59)[1] = rotate.ucharPtr(i, j)[1];
+            sprites.ucharPtr(i+21, j+848+ 264 +59)[2] = rotate.ucharPtr(i, j)[2];  
+      }
+    }
+
+
+
+      cv.imshow("mask",sprites);
+
+
       M.delete();  rectangular_image.delete(); src.delete(); contours.delete(); hierarchy.delete(); cnt.delete();
     }
 
+ 
 
     async function delete_images(){
 
         nobg.width = 1; nobg.height = 1;
         img.src = "";
-        mask.width = 1; mask.height = 1;
+        //mask.width = 1; mask.height = 1;
         let i =document.getElementById("mask1"); i.width=1; i.height=1;
         i =document.getElementById("mask2"); i.width=1; i.height=1;
 
