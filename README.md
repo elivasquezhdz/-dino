@@ -1,6 +1,10 @@
 # NearRunner
 Hackathon submission to [MetaBuild](https://metabuild.devpost.com/)
 
+
+![demo](https://user-images.githubusercontent.com/14225860/155053024-6aa393c0-d244-4288-858e-888bfa316101.gif)
+
+
 ### Inspiration
 I build on the [Brave challenge](https://metabuild.devpost.com/details/sponsor-challenges#h_68495059719631639493354543)  with the twist that we can play the game as the character.
 ## What it does
@@ -25,6 +29,6 @@ Download the repo and start a local server on it (python -m http.server) and vis
 
 ## Live version
 
-[NearRunner(]https://elivasquezhdz.github.io/NearRunner/)
+[NearRunner](https://elivasquezhdz.github.io/NearRunner/)
 
 
