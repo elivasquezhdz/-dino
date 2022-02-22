@@ -21,4 +21,10 @@ Issue the skins as NFTs
 And make player able to earn $NearRunner coin 
 
 ## Instructions 
-Navigate to prototype folder and start a local server on it (python -m http.server) and visit localhost:8000 or appropriate address.
+Download the repo and start a local server on it (python -m http.server) and visit localhost:8000 or appropriate address.
+
+## Live version
+
+[NearRunner(]https://elivasquezhdz.github.io/NearRunner/)
+
+
