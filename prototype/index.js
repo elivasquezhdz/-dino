@@ -8,9 +8,9 @@
 
 
     var c = document.getElementById("mask");
-    var ctx = c.getContext("2d");
-    var img = document.getElementById("offline-resources-1x-img");
-    ctx.drawImage(img,0,0);
+    //var ctx = c.getContext("2d");
+    /*var img = document.getElementById("offline-resources-1x-img");
+    ctx.drawImage(img,0,0);*/
   
     var img_added = new Image();
 

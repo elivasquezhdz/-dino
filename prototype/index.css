@@ -16,7 +16,7 @@ html, body {
 }
 
 .icon-offline {
-  content: -webkit-image-set( url(empty.bmp) 1x);
+  content: -webkit-image-set( url(empty.png) 1x);
   position: relative;
 }
 
